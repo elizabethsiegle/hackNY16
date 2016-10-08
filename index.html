@@ -12,11 +12,9 @@
 		<link type="text/css" rel="stylesheet" href="http://pubnub.github.io/eon/v/eon/0.0.10/eon.css"/>
 
 	</head>
-	<body>
+	<body background = 'img/background.jpg'>
 	<header>
 		<h2>Realtime Election PubNub Twitter Stream Data Vis. with EON.js</h2>
-		<p id = "timeHeader">This chart, once loaded, shows who is being tweeted about the most </p>
-		<p>The chart will go here once data loads</p>
 	</header>
 		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<div class= "playerData">
@@ -66,6 +64,7 @@
 	  if (!data) DOCUMENT.getElementById('chart') = "Data is loading. There will be fewer tweets if it's not gametime or in season.";
 	  if (hillaryWords.some(function(v) {
 	      return data.text.toLowerCase().indexOf(v) !== -1;
+	      displayData(data, hillary);
 	    })) {
 	    numHillaryWords += 1;
 	    totalNumTweets+=1;
@@ -73,6 +72,7 @@
 	    console.log(data);
 	  } else if (trumpWords.some(function(v) {
 	      return data.text.toLowerCase().indexOf(v) !== -1;
+	      displayData(data, trump);
 	    })) {
 	    numTrumpWords += 1;
 	    totalNumTweets += 1;
@@ -176,11 +176,80 @@
 	    } //axis
 	  } //generate
 	}); //eon.chart
+
+function getUserInfo(data, callback) {
+		if(!data.geo) return;
+
+		var userInfo = {};
+
+		userInfo.lat = data.geo.coordinates[0];
+		userInfo.lon = data.geo.coordinates[1];
+
+		if(userInfo.lat === 0 && userInfo.lon === 0) return;
+
+		var city = data.place.full_name;
+		userInfo.city = city;
+		userInfo.state = city.substring(city.lastIndexOf(',')+1).trim();
+
+		userInfo.name = data.user.name;
+		userInfo.screenname = data.user.screen_name;
+		userInfo.avatar = data.user.profile_image_url;
+		userInfo.tweet = data.text;
+		userInfo.id_str = data.id_str;
+
+		var date = new Date(parseInt(data.timestamp_ms));
+		var d = date.toDateString().substr(4);
+		var t = (date.getHours() > 12) ? date.getHours()-12 + ':' + date.getMinutes() + ' PM' : date.getHours() + ':' + date.getMinutes() +' AM;';
+
+		userInfo.timestamp = t + ' - ' + d;
+	
+		console.log(userInfo.tweet);
+		callback(userInfo);
+	}
+
+	function insertLinks(text) {            
+        return text.replace(/((https?|s?ftp|ssh)\:\/\/[^"\s\<\>]*[^.,;'">\:\s\<\>\)\]\!])/g, function(url){return '<a href="'+url+'" >'+url+'</a>';});                      
+    }
+
+    function displayTweet(data, sentiment) {
+    	getUserInfo(data, function(user) {
+    		document.querySelector('.button').href = 'https://twitter.com/' + user.screenname;
+			document.querySelector('.header').style.backgroundImage = 'url('+ user.avatar +')';
+			document.querySelector('.name').textContent = user.name;
+			document.querySelector('.screenname').textContent = '@' + user.screenname;
+			document.querySelector('.text').innerHTML = twemoji.parse(insertLinks(user.tweet));
+			document.querySelector('.timestamp').textContent = user.timestamp;
+
+			document.querySelector('.reply').href ='https://twitter.com/intent/tweet?in_reply_to=' + user.id_str;
+			document.querySelector('.retweet').href = 'https://twitter.com/intent/retweet?tweet_id=' + user.id_str;
+			document.querySelector('.favorite').href = 'https://twitter.com/intent/favorite?tweet_id=' + user.id_str;
+			
+			document.querySelector('.tweet').style.opacity = 0.9;
+    	});
+    }
 	
 	</script>
+	<section class="tweet">
+			<blockquote class="h-entry">
+				<a class="button" role="button" title="Follow on Twitter" href="" target="_blank"></a>
+				<div class="header">
+					<div class="name"></div>
+					<div class="screenname"></div>
+				</div>
+				
+				<div class="text"></div>
+				<div class="timestamp"></div>
+
+				<div class="actions">
+					<a class="reply" href="" target="_blank"><i class="fa fa-reply"></i></a>
+					<a class="retweet" href="" target="_blank"><i class="fa fa-retweet"></i></a>
+					<a class="favorite" href="" target="_blank"><i class="fa fa-star"></i></a>
+				</div>
+			</blockquote>
+			<div class="emotion"></div>
+		</section>
 	</body>
 	<footer>
-		<img class="logo" src="img/pubnubLogo.png">
 		<p id = "leftP">PubNub <a href="https://twitter.com/hashtag/projecteon" target="_blank">#projecteon</a> demo by <a href="https://twitter.com/lizziepika" target="_blank">@lizziepika</a></p>
 	</footer>
 </html>
