@@ -10,6 +10,7 @@
 		<link rel="stylesheet" href="css/style.css">
 		<script type="text/javascript" src="http://pubnub.github.io/eon/v/eon/0.0.10/eon.js"></script>
 		<link type="text/css" rel="stylesheet" href="http://pubnub.github.io/eon/v/eon/0.0.10/eon.css"/>
+		<script   src="http://code.jquery.com/jquery-3.1.1.js"   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="   crossorigin="anonymous"></script>
 
 	</head>
 	<body>
@@ -21,7 +22,7 @@
 		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<div class= "playerData">
 			<div id = "hoverImg"></div>
-			<div id = "chart"></div> 
+			<div id = "chart"></div>
 		</div>
 
 		<div class= "container">
@@ -70,15 +71,25 @@
 	    numHillaryWords += 1;
 	    totalNumTweets+=1;
 	    publish2();
-	    console.log(data);
+	    //console.log("HERE IS YOUR DATA MAN");
+	    //console.log(data);
+	    //console.log("HERE IS THE TEXT");
+	    //console.log(data['text']);
+	    $.getJSON('https://api.havenondemand.com/1/api/sync/analyzesentiment/v1?text='+ data['text'] +'&language=eng&apikey=dbb4607a-946f-4d6c-b63e-84e3844111f5',function(data2){
+	 console.log(data['text']);
+		console.log(data2['aggregate']['score']);
+		//score_list.push(sent_score);
+		//console.log("The score for Tweet : "+sent_score.toString());
+
+	});
 	  } else if (trumpWords.some(function(v) {
 	      return data.text.toLowerCase().indexOf(v) !== -1;
 	    })) {
 	    numTrumpWords += 1;
 	    totalNumTweets += 1;
 	    publish2();
-	    console.log(data);
-	  } 
+	    //console.log(data);
+	  }
 	  bestFans();
 	} //processData()
 	function bestFans() {
@@ -120,7 +131,7 @@
 	      }
 	    }, //msg
 	    callback: function(m) {
-	        console.log(m)
+	        //console.log(m)
 	      } //callback
 	  }); //pubnubEon
 	} //publish
@@ -136,7 +147,7 @@
 	      colors: {
 	        'Hillary': 'blue',
 	        'Trump': 'red',
-	      } //colors	
+	      } //colors
 	    }, //data
 	    legend: {
 	      show: true,
@@ -149,7 +160,7 @@
 	          } else if (id == "Trump") {
 	            document.getElementById('hoverImg').innerHTML = "<img src='img/trump.jpg' border=0/></a>";
 	            document.getElementById("hoverImg").style.transitionDuration = "10s";
-	          } 
+	          }
 	        }, //onmouseover
 	        //onmouseout, img goes away
 	        onmouseout: function(id) {
@@ -159,8 +170,8 @@
 	            } else if (id == "Trump") {
 	              document.getElementById('hoverImg').innerHTML = " ";
 	              document.getElementById("hoverImg").style.transitionDuration = "10s";
-	            } 
-	          } //onmouseout 	
+	            }
+	          } //onmouseout
 	      } //legend.item
 	    }, //legend
 	    tooltip: {
