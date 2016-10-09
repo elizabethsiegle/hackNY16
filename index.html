@@ -151,10 +151,10 @@
 	      		$.getJSON('https://api.havenondemand.com/1/api/sync/analyzesentiment/v1?text='+ data['text'] +'&language=eng&apikey=dbb4607a-946f-4d6c-b63e-84e3844111f5',function(data2){
 	      			console.log(data['text']);
 	      			if(tweet_color%2==0){
-	      			  $('#tweeets').append('<a href='+data['entities']['urls']['url']+'><h2>'+data['text']+'</h2></a>');
+	      			  $('#tweeets').append('<a href='+data['url']+'><h2>'+data['text']+'</h2></a>');
 	      			  tweet_color += 1;
 	      			}else if{
-	      			  $('#tweeets').append('<a href='+data['entities']['urls']['url']+'><h2 style="background-color:#eee;">'+data['text']+'</h2></a>');
+	      			  $('#tweeets').append('<a href='+data['url']+'><h2 style="background-color:#eee;">'+data['text']+'</h2></a>');
 	      			  tweet_color +=1;
 	      			}
 	      			
