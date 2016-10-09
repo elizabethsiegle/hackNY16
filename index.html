@@ -7,9 +7,10 @@
 		<meta name="description" content="Twitter x Warriors Visualization using PubNub">
 		<meta name="author" content="Lizzie Siegle">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="css/style.css">
+		<!-- <link rel="stylesheet" href="css/style.css"> -->
 		<script type="text/javascript" src="http://pubnub.github.io/eon/v/eon/0.0.10/eon.js"></script>
 		<link type="text/css" rel="stylesheet" href="http://pubnub.github.io/eon/v/eon/0.0.10/eon.css"/>
+		<script   src="http://code.jquery.com/jquery-3.1.1.js"   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="   crossorigin="anonymous"></script>
 
 	</head>
 	<body background = 'img/background.jpg'>
@@ -19,25 +20,33 @@
 		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<div class= "playerData">
 			<div id = "hoverImg"></div>
-			<div id = "chart"></div> 
+			<div id = "chart"></div>
 		</div>
 
-		<div class= "container">
+	<!-- 	<div class= "container">
 			<div class = "textContainer">
-				<h4 id = "bestFans">Who is being tweeting about more?</h4>
 				<h4 id= "scrollDiv"></h4>
 			</div>
 			<div id = "scrollDivPic"></div>
 		</div>
-		<div style = "clear: both;"></div>
+		<div style = "clear: both;"></div> -->
 <script>
 	var hillaryWords = [
 	  'hillary', 'Hillary', 'Hillary Clinton', 'HRC', 'clinton', 'Clinton'];
 	var trumpWords = [
 	  'trump', 'Donald Trump', 'donald trump', 'donald', '#trump', '#donald'
 	];
+
+	var proClintonColor = "#232066";
+    var antiClintonColor = "#66a3ff";
+    var proTrumpColor = "#800000";
+    var antiTrumpColor = "#ff9999";
 	
 	var numHillaryWords = 0;
+	var hillaryNeg = 0;
+	var hillaryPos = 0;
+	var trumpNeg = 0;
+	var trumpPos = 0;
 	var numTrumpWords = 0;
 	var channel = 'pubnub-twitter';
 	var pubnubTweet = PUBNUB.init({
@@ -46,190 +55,290 @@
 	}); //pubnub
 	getStreamData();
 	// fetch previous 75 Tweets, then realtime stream
-	 function getStreamData() {
-       pubnubTweet.history({
-        channel: channel,
-        count: 75,
-        callback: function(messages) {
-          pubnubTweet.each(messages[0], processData);
-        }
-      });
-    pubnubTweet.subscribe({
+	function getStreamData() {
+		pubnubTweet.history({
+        	channel: channel,
+        	count: 75,
+        	callback: function(messages) {
+          		pubnubTweet.each(messages[0], processData);
+        	}
+    	}); //history
+	}
+	pubnubTweet.subscribe({
         channel: channel,
         callback: processData
-      });
-  }
+    }); //subscribe
 	var totalNumTweets = 0;
 	function processData(data) {
-	  if (!data) DOCUMENT.getElementById('chart') = "Data is loading. There will be fewer tweets if it's not gametime or in season.";
-	  if (hillaryWords.some(function(v) {
-	      return data.text.toLowerCase().indexOf(v) !== -1;
-	      displayData(data, hillary);
-	    })) {
-	    numHillaryWords += 1;
-	    totalNumTweets+=1;
-	    publish2();
-	    console.log(data);
-	  } else if (trumpWords.some(function(v) {
-	      return data.text.toLowerCase().indexOf(v) !== -1;
-	      displayData(data, trump);
-	    })) {
-	    numTrumpWords += 1;
-	    totalNumTweets += 1;
-	    publish2();
-	    console.log(data);
-	  } 
-	  bestFans();
+		if (!data) DOCUMENT.getElementById('chart') = "Data is loading";
+		if (hillaryWords.some(function(v) {
+			return data.text.toLowerCase().indexOf(v) !== -1;
+			displayData(data, hillary);
+		})) {
+			$.getJSON('https://api.havenondemand.com/1/api/sync/analyzesentiment/v1?text='+ data['text'] +'&language=eng&apikey=dbb4607a-946f-4d6c-b63e-84e3844111f5',function(data2){
+	    		console.log(data['text']);
+	    		console.log(data2['aggregate']['score']);
+	    		if(data2['aggregate']['sentiment'] == 'negative') {
+					hillaryNeg +=1;
+					totalNumTweets +=1;
+					numHillaryWords +=1;
+					publish2();
+				} //if
+				else if(data2['aggregate']['sentiment'] == 'positive') {
+					hillaryPos += 1;
+					numHillaryWords +=1;
+					totalNumTweets += 1;
+					publish2();
+				}  //else if
+			});
+			if (trumpWords.some(function(v) {
+					return data.text.toLowerCase().indexOf(v) !== -1;
+				})) {
+	      		$.getJSON('https://api.havenondemand.com/1/api/sync/analyzesentiment/v1?text='+ data['text'] +'&language=eng&apikey=dbb4607a-946f-4d6c-b63e-84e3844111f5',function(data2){
+	      			console.log(data['text']);
+	      			console.log(data2['aggregate']['score']);
+	      			if(data2['aggregate']['sentiment'] == 'negative') {
+	      				trumpNeg +=1;
+						//displayData(data, trump);
+	      				numTrumpWords += 1;
+	    				totalNumTweets += 1;
+	    				publish2();
+					}
+					else if(data2['aggregate']['sentiment'] == 'positive') {
+						trumpPos += 1;
+						//displayData(data, trump);
+	      				numTrumpWords += 1;
+	    				totalNumTweets += 1;
+	    				publish2();
+	    			}
+	    		});
+	    	}
+	    	//console.log(data);
+	    }
 	} //processData()
-	function bestFans() {
-	  var fanElement = document.getElementById('scrollDiv');
-	  var fanStr = document.createTextNode('People are tweeting about Hillary more');
-	  var notFanStr = document.createTextNode('People are tweeting about Trump more');
-	  var tieFanStr = document.createTextNode('They\'re tweeting equally!');
-	  if (hillaryWords == trumpWords) {
-	  	document.getElementById('scrollDivPic').innerHTML = '';
-	    fanElement.innerHTML = tieFanStr;
-	    fanElement.appendChild(tieFanStr);
-	  } //if
-	  else if (hillaryWords > trumpWords) {
-	    fanElement.innerHTML = fanStr;
-	    document.getElementById('scrollDivPic').innerHTML = "<img src='img/clinton.jpeg' border=0/></a>";
-	    fanElement.appendChild(fanStr);
-	  } else { // # trump > # hillary
-	    fanElement.innerHTML = notFanStr;
-	    document.getElementById('scrollDivPic').innerHTML = "<img class = 'resize2' src='img/trump.jpg' border=0/></a>";
-	    fanElement.appendChild(notFanStr);
-	  } //else
-	  if (fanElement.childNodes.length >= 1) {
-	    fanElement.removeChild(fanElement.firstChild);
-	  } //if
-	} //bestFans()
-	var pubnubEon = PUBNUB.init({
+	var pnEon = PUBNUB.init({
 	  subscribe_key: 'sub-c-5f50a89e-8d8e-11e6-bb6b-0619f8945a4f', //different subscribe from Twitter
 	  publish_key: 'pub-c-98bc3516-e920-4918-bffb-f1861be32d48' //separate keyset generated, paired with new subscribe key
 	});
+	// var trumpEon = PUBNUB.init({
+	// 	subscribe_key: 'sub-c-68977430-8d8b-11e6-a68c-0619f8945a4f', //different subscribe from Twitter
+	//   	publish_key: 'pub-c-20c08405-027a-495b-a8da-4afe532ab3b7'
+	// });
 	//publish chart
-	var elChan = 'electionChannel';
+	var hillChan = 'hillChan';
+	var trumpChan = "trumpChan";
+	var bothChan = "bothChan";
 	function publish2() {
-	  pubnubEon.publish({
-	    channel: elChan,
-	    message: {
-	      eon: {
-	        "Hillary": numHillaryWords / totalNumTweets,
-	        "Trump": numTrumpWords / totalNumTweets,
-	      }
-	    }, //msg
-	    callback: function(m) {
-	        console.log(m)
-	      } //callback
-	  }); //pubnubEon
-	} //publish
-	//embed chart
-	eon.chart({
-	  channel: elChan,
-	  pubnub: pubnubEon,
-	  generate: {
-	    bindto: '#chart',
-	    data: {
-	      labels: true,
-	      type: 'donut', //bar
-	      colors: {
-	        'Hillary': 'blue',
-	        'Trump': 'red',
-	      } //colors	
-	    }, //data
-	    legend: {
-	      show: true,
-	      item: {
-	        onmouseover: function(id) {
-	          //could also get pics easily straight from Warriors website instead of having in img folder
-	          if (id == "Hillary") {
-	            document.getElementById('hoverImg').innerHTML = "<img src='img/clinton.jpeg' border=0/></a>";
-	            document.getElementById("hoverImg").style.transitionDuration = "10s";
-	          } else if (id == "Trump") {
-	            document.getElementById('hoverImg').innerHTML = "<img src='img/trump.jpg' border=0/></a>";
-	            document.getElementById("hoverImg").style.transitionDuration = "10s";
-	          } 
-	        }, //onmouseover
-	        //onmouseout, img goes away
-	        onmouseout: function(id) {
-	            if (id == "Hillary") {
-	              document.getElementById('hoverImg').innerHTML = " ";
-	              document.getElementById("hoverImg").style.transitionDuration = "10s";
-	            } else if (id == "Trump") {
-	              document.getElementById('hoverImg').innerHTML = " ";
-	              document.getElementById("hoverImg").style.transitionDuration = "10s";
-	            } 
-	          } //onmouseout 	
-	      } //legend.item
-	    }, //legend
-	    tooltip: {
-	      show: false //gets rid of hover legend
-	    },
-	    axis: {
-	      x: {
-	        label: 'Tweet topic'
-	      }, //x
-	      y: {
-	        label: 'Number of Tweets'
-	      } //y
-	    } //axis
-	  } //generate
-	}); //eon.chart
-
-function getUserInfo(data, callback) {
-		if(!data.geo) return;
-
-		var userInfo = {};
-
-		userInfo.lat = data.geo.coordinates[0];
-		userInfo.lon = data.geo.coordinates[1];
-
-		if(userInfo.lat === 0 && userInfo.lon === 0) return;
-
-		var city = data.place.full_name;
-		userInfo.city = city;
-		userInfo.state = city.substring(city.lastIndexOf(',')+1).trim();
-
-		userInfo.name = data.user.name;
-		userInfo.screenname = data.user.screen_name;
-		userInfo.avatar = data.user.profile_image_url;
-		userInfo.tweet = data.text;
-		userInfo.id_str = data.id_str;
-
-		var date = new Date(parseInt(data.timestamp_ms));
-		var d = date.toDateString().substr(4);
-		var t = (date.getHours() > 12) ? date.getHours()-12 + ':' + date.getMinutes() + ' PM' : date.getHours() + ':' + date.getMinutes() +' AM;';
-
-		userInfo.timestamp = t + ' - ' + d;
+		pnEon.publish({
+			channel: hillChan,
+			message: {
+				eon: {
+					"Hillary Positive": hillaryPos / (hillaryPos + hillaryNeg),
+					"Hillary negative" : hillaryNeg / (hillaryPos + hillaryNeg)
+				}
+			}, //msg
+			callback: function(m) {
+				console.log(m)
+			} //callback
+		}); //publish
 	
-		console.log(userInfo.tweet);
-		callback(userInfo);
-	}
+		//embed chart
+		eon.chart({
+			channel: hillChan,
+			pubnub: pnEon,
+			history: true,
+			generate: {
+				bindto: '#eon-hillary-pie-chart',
+				data: {
+					labels: true,
+	      			type: 'donut', //bar
+	      			colors: {
+	        			'Hillary Positive': proClintonColor,
+	        			'Negative': antiClintonColor,
+	      			} //colors
+	    		}, //data
+	    		legend: {
+	      			show: true,
+	    		}, //legend
+	    		tooltip: {
+	      			show: false //gets rid of hover legend
+	    		},
+	    		axis: {
+	      			x: {
+	        			label: 'Tweet topic'
+	      			}, //x
+	      			y: {
+	        			label: 'Number of Tweets'
+	      			} //y
+	    		} //axis
+	  		} //generate
+		}); //eon.chart
+		
+		//embed
+		pnEon.publish({
+			channel: trumpChan,
+			message: {
+				eon: {
+					"Trump Positive": trumpPos / (trumpPos + trumpNeg),
+					"Trump negative" : trumpNeg / (trumpPos + trumpNeg)
+				}
+			}, //msg
+			callback: function(m) {
+				console.log(m)
+			} //callback
+		}); //pubnubEon
+	
+		//embed chart
+		eon.chart({
+			channel: bothChan,
+			pubnub: pnEon,
+			history: true,
+			generate: {
+				bindto: '#eon-trump-pie-chart',
+				data: {
+					labels: true,
+      				type: 'donut', //bar
+      				colors: {
+        				'Positive': proTrumpColor,
+        				'Negative': antiTrumpColor,
+      				} //colors
+    			}, //data
+    			legend: {
+      				show: true,
+    			}, //legend
+    		
+    			tooltip: {
+      				show: false //gets rid of hover legend
+    			},
+    			axis: {
+      				x: {
+        				label: 'Tweet topic'
+      				}, //x
+      				y: {
+        				label: 'Number of Tweets'
+      				} //y
+	    		} //axis
+	  		} //generate
+		}); //eon.chart
+		//embed
+		pnEon.publish({
+			channel: bothChan,
+			message: {
+				eon: {
+					"Trump Positive": trumpPos / (trumpPos + trumpNeg),
+					"Trump negative" : trumpNeg / (trumpPos + trumpNeg)
+				}
+			}, //msg
+			callback: function(m) {
+				console.log(m)
+			} //callback
+		}); //pubnubEon
+	
+		//embed chart
+		eon.chart({
+			channel: trumpChan,
+			pubnub: pnEon,
+			history: true,
+			generate: {
+				bindto: '#eon-trump-pie-chart',
+				data: {
+					labels: true,
+      				type: 'donut', //bar
+      				colors: {
+        				'Positive': proTrumpColor,
+        				'Negative': antiTrumpColor,
+      				} //colors
+    			}, //data
+    			legend: {
+      				show: true,
+    			}, //legend
+    		
+    			tooltip: {
+      				show: false //gets rid of hover legend
+    			},
+    			axis: {
+      				x: {
+        				label: 'Tweet topic'
+      				}, //x
+      				y: {
+        				label: 'Number of Tweets'
+      				} //y
+	    		} //axis
+	  		} //generate
+		}); //eon.chart
+} //end func
 
-	function insertLinks(text) {            
-        return text.replace(/((https?|s?ftp|ssh)\:\/\/[^"\s\<\>]*[^.,;'">\:\s\<\>\)\]\!])/g, function(url){return '<a href="'+url+'" >'+url+'</a>';});                      
-    }
+// function getUserInfo(data, callback) {
+// 		if(!data.geo) return;
 
-    function displayTweet(data, sentiment) {
-    	getUserInfo(data, function(user) {
-    		document.querySelector('.button').href = 'https://twitter.com/' + user.screenname;
-			document.querySelector('.header').style.backgroundImage = 'url('+ user.avatar +')';
-			document.querySelector('.name').textContent = user.name;
-			document.querySelector('.screenname').textContent = '@' + user.screenname;
-			document.querySelector('.text').innerHTML = twemoji.parse(insertLinks(user.tweet));
-			document.querySelector('.timestamp').textContent = user.timestamp;
+// 		var userInfo = {};
 
-			document.querySelector('.reply').href ='https://twitter.com/intent/tweet?in_reply_to=' + user.id_str;
-			document.querySelector('.retweet').href = 'https://twitter.com/intent/retweet?tweet_id=' + user.id_str;
-			document.querySelector('.favorite').href = 'https://twitter.com/intent/favorite?tweet_id=' + user.id_str;
+// 		userInfo.lat = data.geo.coordinates[0];
+// 		userInfo.lon = data.geo.coordinates[1];
+
+// 		if(userInfo.lat === 0 && userInfo.lon === 0) return;
+
+// 		var city = data.place.full_name;
+// 		userInfo.city = city;
+// 		userInfo.state = city.substring(city.lastIndexOf(',')+1).trim();
+
+// 		userInfo.name = data.user.name;
+// 		userInfo.screenname = data.user.screen_name;
+// 		userInfo.avatar = data.user.profile_image_url;
+// 		userInfo.tweet = data.text;
+// 		userInfo.id_str = data.id_str;
+
+// 		var date = new Date(parseInt(data.timestamp_ms));
+// 		var d = date.toDateString().substr(4);
+// 		var t = (date.getHours() > 12) ? date.getHours()-12 + ':' + date.getMinutes() + ' PM' : date.getHours() + ':' + date.getMinutes() +' AM;';
+
+// 		userInfo.timestamp = t + ' - ' + d;
+	
+// 		console.log(userInfo.tweet);
+// 		callback(userInfo);
+// 	}
+
+// 	function insertLinks(text) {            
+//         return text.replace(/((https?|s?ftp|ssh)\:\/\/[^"\s\<\>]*[^.,;'">\:\s\<\>\)\]\!])/g, function(url){return '<a href="'+url+'" >'+url+'</a>';});                      
+//     }
+
+//     function displayTweet(data, sentiment) {
+//     	getUserInfo(data, function(user) {
+//     		document.querySelector('.button').href = 'https://twitter.com/' + user.screenname;
+// 			document.querySelector('.header').style.backgroundImage = 'url('+ user.avatar +')';
+// 			document.querySelector('.name').textContent = user.name;
+// 			document.querySelector('.screenname').textContent = '@' + user.screenname;
+// 			document.querySelector('.text').innerHTML = twemoji.parse(insertLinks(user.tweet));
+// 			document.querySelector('.timestamp').textContent = user.timestamp;
+
+// 			document.querySelector('.reply').href ='https://twitter.com/intent/tweet?in_reply_to=' + user.id_str;
+// 			document.querySelector('.retweet').href = 'https://twitter.com/intent/retweet?tweet_id=' + user.id_str;
+// 			document.querySelector('.favorite').href = 'https://twitter.com/intent/favorite?tweet_id=' + user.id_str;
 			
-			document.querySelector('.tweet').style.opacity = 0.9;
-    	});
-    }
+// 			document.querySelector('.tweet').style.opacity = 0.9;
+//     	});
+//     } //end func
 	
 	</script>
-	<section class="tweet">
+	<div class = "hbox">
+		<div class = "vbox panel">
+			<h4 class = "chartTitles">Sentiment over time</h4>
+			<div id = "eon-spline-chart"></div>
+		</div>
+	</div>
+	<div class="hbox">
+        <div class="vbox panel">
+            <h4 class="chartTitles">Trump Sentiment by Proportion</h4>
+            <div id="eon-trump-pie-chart"></div>
+        </div>
+        <div class="vbox panel">
+            <h4 class="chartTitles">Clinton Sentiment by Proportion</h4>
+            <div id="eon-hillary-pie-chart">
+            </div>
+        </div>
+    </div>
+
+	<!-- <section class="tweet">
 			<blockquote class="h-entry">
 				<a class="button" role="button" title="Follow on Twitter" href="" target="_blank"></a>
 				<div class="header">
@@ -247,7 +356,7 @@ function getUserInfo(data, callback) {
 				</div>
 			</blockquote>
 			<div class="emotion"></div>
-		</section>
+		</section> -->
 	</body>
 	<footer>
 		<p id = "leftP">PubNub <a href="https://twitter.com/hashtag/projecteon" target="_blank">#projecteon</a> demo by <a href="https://twitter.com/lizziepika" target="_blank">@lizziepika</a></p>
