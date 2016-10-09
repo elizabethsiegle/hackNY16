@@ -20,58 +20,31 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!--Twilio-->
+    <script src="https://media.twiliocdn.com/sdk/js/common/v0.1/twilio-common.min.js"></script>
+<script src="https://media.twiliocdn.com/sdk/rtc/js/ip-messaging/v0.10/twilio-ip-messaging.min.js"></script>
     
     <!--Google Fonts-->
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
  	<script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>
+ 	<script src="http://cdn.pubnub.com/pubnub-3.7.11.min.js"></script>
+ 	<!--giphy-->
+ 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 	</head>
 	<body>
-		<div id="fb-root"></div>
-<script>
-(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1741191809503706";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-</script>
 	<nav class="navbar navbar-inverse">
     <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <a class="navbar-brand" href="#"><strong>Realtime Data Vis. of Election Tweets Sentiment Analysis</strong></a>
+      <a class="navbar-brand" href="#"><strong>Realtime Sentiment Analysis Data Visualization of Election Tweets</strong></a>
     </div>
-    <div id="fb-root"></div>
-	<!-- USE 'Asynchronous Loading' version, for IE8 to work
-	http://developers.facebook.com/docs/reference/javascript/FB.init/ -->
-	
-<!-- <button id = "autoPostStatus" onclick="myFacebookLogin();">Post prev-composed status</button> -->
-<!--FB init buttons -->
-<!-- <div
-  class="fb-like"
-  data-share="true"
-  data-width="450"
-  data-show-faces="true">
-</div> -->
   </nav>
   <div id = "twitterButton">
   <a href="https://twitter.com/intent/tweet?text=checking+out+this+realtime+election+tweet+sentiment+analysis+visualization+at+@hackny&hashtags=hackny" class="twitter-share-button" data-show-count="false">Tweet</a><!-- <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> -->
 </div>
 		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-		<div class= "playerData">
-			<div id = "hoverImg"></div>
-			<div id = "chart"></div>
-		</div>
-
-	<!-- 	<div class= "container">
-			<div class = "textContainer">
-				<h4 id= "scrollDiv"></h4>
-			</div>
-			<div id = "scrollDivPic"></div>
-		</div>
-		<div style = "clear: both;"></div> -->
 <script>
 	var hillaryWords = [
 	  'hillary', 'Hillary', 'Hillary Clinton', 'HRC', 'clinton', 'Clinton'];
@@ -117,7 +90,6 @@
     }); //subscribe
 	var totalNumTweets = 0;
 	function processData(data) {
-		if (!data) DOCUMENT.getElementById('chart') = "Data is loading";
 		if (hillaryWords.some(function(v) {
 			return data.text.toLowerCase().indexOf(v) !== -1;
 		})) {
@@ -135,6 +107,7 @@
 					hillaryPos += 1;
 					numHillaryWords +=1;
 					totalNumTweets += 1;
+					document.body.style.backgroundColor = '#868f9e';
 					//displayTweet(data, positive);
 					publish2();
 				}  //else if
@@ -142,6 +115,7 @@
 					hillaryNeutral += 1;
 					numHillaryWords +=1;
 					totalNumTweets += 1;
+					document.body.style.backgroundColor = '#8e8281';
 					publish2();
 				}  //else if
 			});
@@ -165,25 +139,49 @@
 	      				numTrumpWords += 1;
 	    				totalNumTweets += 1;
 	    				displayTweet(data, negative);
+	    				document.body.style.backgroundColor = '#ba7b60';
 	    				publish2();
 					}
 					else if(data2['aggregate']['sentiment'] == 'positive') {
 						trumpPos += 1;
 						//displayData(data, trump);
+						document.body.style.backgroundColor = '#dd3f39';
 	      				numTrumpWords += 1;
 	    				totalNumTweets += 1;
-	    				displayTweet(data, positive);
+	    				//displayTweet(data, positive);
 	    				publish2();
 	    			}
 	    			else if(data2['aggregate']['sentiment'] == 'neutral') {
 					trumpNeutral += 1;
 					numTrumpWords +=1;
 					totalNumTweets += 1;
+					document.body.style.backgroundColor = '#8e8281';
 					publish2();
 				}  //else if
 	    		});
 	    	}
 	    	//console.log(data);
+	    	if((trumpPos/numTrumpWords) > (hillaryPos/numHillaryWords)) {
+	    		document.getElementById('trendingPic').innerHTML = "<img src = 'http://www.slate.com/content/dam/slate/blogs/moneybox/2015/08/16/donald_trump_on_immigration_build_border_fence_make_mexico_pay_for_it/483208412-real-estate-tycoon-donald-trump-flashes-the-thumbs-up.jpg.CROP.promo-xlarge2.jpg' border=0 width=50% height=50%/></a>";
+
+	    	}
+	    	else if(trumpPos/numTrumpWords < hillaryPos/numHillaryWords) {
+	    		document.getElementById('trendingPic').innerHTML = "<img src='img/clinton.jpeg' border=0/></a>";
+	    	}
+	    	else if(trumpPos/numTrumpWords < hillaryPos/numHillaryWords) {
+	    		document.getElementById('trendingPic').innerHTML = "<img src = 'img/trump.jpg' border=0/></a>";
+	    	}
+	    	else if(numTrumpWords > numHillaryWords) {
+	    		document.getElementById('trendingPic').innerHTML = "<img src = 'www.businessinsider.com%2Fdonald-trump-poll-surge-hillary-clinton-2016-5&psig=AFQjCNGs1KKuxuqcj8g91YZhDqflYQ2ibA&ust=1476108136408581' border=0/></a>";
+	    		
+	    	}
+	    	else if(numHillaryWords < numTrumpWords) {
+	    		document.getElementById('trendingPic').innerHTML = "<img src = 'http://15130-presscdn-0-89.pagely.netdna-cdn.com/wp-content/uploads/2016/02/Trump-Nominee.jpg' border=0/></a>";
+	    	}
+	    	else if(numHillaryWords == numTrumpWords) {
+	    		document.getElementById('trendingPic').innerHTML = "<img src = 'http://a.abcnews.com/images/Politics/AP_trump_guns_as_160519_16x9_992.jpg' border=0 width=65% height=65%/></a>";
+	    		
+	    	}
 	    }
 	} //processData()
 	var eon2 = PUBNUB.init({
@@ -446,6 +444,7 @@
 //            		.attr('transform', function(d) {return 'translate(' + position + ')';});
 // 		});
 //     } //end func
+
 //fb
 // window.fbAsyncInit = function() {
 //     FB.init({
@@ -473,14 +472,16 @@
 //     // Note: The call will only work if you accept the permission request
 //         FB.api('/me/feed', 'post', {message: 'How are people feeling about our presidential candidates on Twitter?'});
 // }
+
 	
 	</script>
+	<div id = "charts">
 	      	<div class = "vbox">
-	      		<h4 class = "chartTitles">Spline? Tweets?</h4>
+	      		<h4 class = "chartTitles">Clinton + Trump Total Sentiment Spline</h4>
 	      		<div id = "spline-chart"></div>
 	      	</div>
 		      <div class = "vbox">
-			      <h4 class = "chartTitles">Sentiment over time</h4>
+			      <h4 class = "chartTitles">Clinton + Trump Bar Graph Sentiment over time</h4>
 			        <div id = "both-bar-chart"></div>
 		      </div>
 	      
@@ -492,6 +493,7 @@
             <h4 class="chartTitles">Clinton Sentiment by Proportion</h4>
             <div id="eon-hillary-pie-chart"></div>
         </div>
+    </div>
 
 	<section class="tweet">
 			<blockquote class="h-entry">
@@ -512,6 +514,7 @@
 			</blockquote>
 			<div class="emotion"></div>
 		</section>
+
 		
 		<div class="container">
 		  <div class="row">
@@ -525,6 +528,79 @@
 		    </div>
 		  </div>
 		</div>
+
+		<section id="main" role="main">
+    <div class="chat">
+      <i class="avatar" class=""></i>
+      <input type="text" placeholder="Sentiment analysis thoughts?"> 
+      <button id = "sendButton">Send</button>
+    </div>
+    
+    <p class="presence"></p>
+    <div class="output"></div>
+    <div id = "trendingPic"></div>
+  </section>
+<script>
+var output = document.querySelector('.output'),
+input = document.querySelector('input'),
+button = document.querySelector('button'),
+avatar = document.querySelector('.avatar'),
+presence = document.querySelector('.presence');
+  
+var chan = 'hackNY2k162';
+
+//random icon 
+avatar.className = 'face-' + ((Math.random() * 9 + 1) >>> 0);
+
+  var pbChat = PUBNUB.init({ 
+    subscribe_key: 'sub-c-2e615be4-439b-11e6-971e-02ee2ddab7fe',
+    publish_key: 'pub-c-568f9a32-f440-4d58-9cee-e23cd1d12e7a'
+  });
+
+  pbChat.subscribe({
+    channel: chan,
+    callback: function(m) {
+      output.innerHTML = '<p><i class="' + m.avatar + '"></i><span>' + m.text.replace(/[<>]/ig, '') + '</span></p>' + output.innerHTML;
+    },
+    // Add-ons: Presence and History
+    presence: function(m) {
+      presence.textContent = 'Occupancy: ' + m.occupancy;
+    },
+    connect: fetchOldMessages
+  });
+
+  input.addEventListener('keyup', function(e) {
+    (e.keyCode || e.charCode) === 13 && send();
+  }, false);
+ 
+  button.addEventListener('click', send, false);
+
+  function send() {
+    pbChat.publish({
+      channel: chan,
+      message: {
+        avatar: avatar.className,
+        text: input.value
+      },
+      callback: function(){input.value = '';}
+    });
+  }
+
+  // Add-on: PubNub Playback to fetch past messages
+  function fetchOldMessages() {
+    pbChat.history({
+      channel: chan,
+      count: 50,
+      callback: function(messages) {
+        messages[0].forEach(function(m) {
+          output.innerHTML = '<p><i class="' + m.avatar + '"></i><span>' + m.text.replace(/[<>]/ig, '') + '</span></p>' + output.innerHTML;
+        });
+      }
+    });
+  }
+</script>
+
+
 	</body>
 	<footer>
 		<!-- <p id = "leftP">PubNub <a href="https://twitter.com/hashtag/projecteon" target="_blank">#projecteon</a> demo by <a href="https://twitter.com/lizziepika" target="_blank">@lizziepika</a></p> -->
