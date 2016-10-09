@@ -225,8 +225,10 @@
 			channel: bothChan,
 			message: {
 				eon: {
-					"Trump Positive": trumpPos / (trumpPos + trumpNeg),
-					"Trump negative" : trumpNeg / (trumpPos + trumpNeg)
+					"Clinton Pos": hillaryPos / (hillaryPos + hillaryNeg),
+					"Clinton neg": hillaryNeg / (hillaryPos + hillaryNeg),
+					"Trump negative" : trumpNeg / (trumpPos + trumpNeg),
+					"Trump Pos": trumpPos / (trumpPos + trumpNeg)
 				}
 			}, //msg
 			callback: function(m) {
@@ -236,17 +238,19 @@
 	
 		//embed chart
 		eon.chart({
-			channel: trumpChan,
+			channel: bothChan,
 			pubnub: pnEon,
 			history: true,
 			generate: {
-				bindto: '#eon-trump-pie-chart',
+				bindto: '#both-bar-chart',
 				data: {
 					labels: true,
-      				type: 'donut', //bar
+      				type: 'bar', //bar
       				colors: {
-        				'Positive': proTrumpColor,
-        				'Negative': antiTrumpColor,
+        				'Clinton Pos': proClintonColor,
+        				'Clinton neg': antiClintonColor,
+        				'Trump Pos': proTrumpColor,
+        				'Trump negative': antiTrumpColor
       				} //colors
     			}, //data
     			legend: {
@@ -323,7 +327,7 @@
 	<div class = "hbox">
 		<div class = "vbox panel">
 			<h4 class = "chartTitles">Sentiment over time</h4>
-			<div id = "eon-spline-chart"></div>
+			<div id = "both-bar-chart"></div>
 		</div>
 	</div>
 	<div class="hbox">
