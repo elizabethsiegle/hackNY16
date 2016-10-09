@@ -24,54 +24,23 @@
     <!--Google Fonts-->
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
  	<script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>
+ 	<script src="http://cdn.pubnub.com/pubnub-3.7.11.min.js"></script>
+ 	<!--giphy-->
+ 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 	</head>
 	<body>
-		<div id="fb-root"></div>
-<script>
-(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1741191809503706";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-</script>
 	<nav class="navbar navbar-inverse">
     <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <a class="navbar-brand" href="#"><strong>Realtime Data Vis. of Election Tweets Sentiment Analysis</strong></a>
+      <a class="navbar-brand" href="#"><strong>Realtime Sentiment Analysis Data Visualization of Election Tweets</strong></a>
     </div>
-    <div id="fb-root"></div>
-	<!-- USE 'Asynchronous Loading' version, for IE8 to work
-	http://developers.facebook.com/docs/reference/javascript/FB.init/ -->
-	
-<!-- <button id = "autoPostStatus" onclick="myFacebookLogin();">Post prev-composed status</button> -->
-<!--FB init buttons -->
-<!-- <div
-  class="fb-like"
-  data-share="true"
-  data-width="450"
-  data-show-faces="true">
-</div> -->
   </nav>
   <div id = "twitterButton">
   <a href="https://twitter.com/intent/tweet?text=checking+out+this+realtime+election+tweet+sentiment+analysis+visualization+at+@hackny&hashtags=hackny" class="twitter-share-button" data-show-count="false">Tweet</a><!-- <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> -->
 </div>
 		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-		<div class= "playerData">
-			<div id = "hoverImg"></div>
-			<div id = "chart"></div>
-		</div>
-
-	<!-- 	<div class= "container">
-			<div class = "textContainer">
-				<h4 id= "scrollDiv"></h4>
-			</div>
-			<div id = "scrollDivPic"></div>
-		</div>
-		<div style = "clear: both;"></div> -->
 <script>
 	var hillaryWords = [
 	  'hillary', 'Hillary', 'Hillary Clinton', 'HRC', 'clinton', 'Clinton'];
@@ -116,7 +85,6 @@
     }); //subscribe
 	var totalNumTweets = 0;
 	function processData(data) {
-		if (!data) DOCUMENT.getElementById('chart') = "Data is loading";
 		if (hillaryWords.some(function(v) {
 			return data.text.toLowerCase().indexOf(v) !== -1;
 		})) {
@@ -134,6 +102,7 @@
 					hillaryPos += 1;
 					numHillaryWords +=1;
 					totalNumTweets += 1;
+					document.body.style.backgroundColor = '#868f9e';
 					//displayTweet(data, positive);
 					publish2();
 				}  //else if
@@ -141,6 +110,7 @@
 					hillaryNeutral += 1;
 					numHillaryWords +=1;
 					totalNumTweets += 1;
+					document.body.style.backgroundColor = '#8e8281';
 					publish2();
 				}  //else if
 			});
@@ -156,20 +126,23 @@
 	      				numTrumpWords += 1;
 	    				totalNumTweets += 1;
 	    				displayTweet(data, negative);
+	    				document.body.style.backgroundColor = '#ba7b60';
 	    				publish2();
 					}
 					else if(data2['aggregate']['sentiment'] == 'positive') {
 						trumpPos += 1;
 						//displayData(data, trump);
+						document.body.style.backgroundColor = '#dd3f39';
 	      				numTrumpWords += 1;
 	    				totalNumTweets += 1;
-	    				displayTweet(data, positive);
+	    				//displayTweet(data, positive);
 	    				publish2();
 	    			}
 	    			else if(data2['aggregate']['sentiment'] == 'neutral') {
 					trumpNeutral += 1;
 					numTrumpWords +=1;
 					totalNumTweets += 1;
+					document.body.style.backgroundColor = '#8e8281';
 					publish2();
 				}  //else if
 	    		});
@@ -437,35 +410,9 @@
 //            		.attr('transform', function(d) {return 'translate(' + position + ')';});
 // 		});
 //     } //end func
-//fb 
-// window.fbAsyncInit = function() {
-//     FB.init({
-//         appId      : 'your-app-id',
-//         xfbml      : true,
-//         version    : 'v2.7'
-//     });
-// };
-
-// (function(d, s, id){
-//     var js, fjs = d.getElementsByTagName(s)[0];
-//     if (d.getElementById(id)) {
-//         return;
-//     }
-//     js = d.createElement(s); 
-
-//     js.id = id;
-//     js.src = "//connect.facebook.net/en_US/sdk.js";
-//     fjs.parentNode.insertBefore(js, fjs);
-// }(document, 'script', 'facebook-jssdk'));
-
-// // Only works after `FB.init` is called
-// function myFacebookLogin() {
-//     FB.login(function(){
-//     // Note: The call will only work if you accept the permission request
-//         FB.api('/me/feed', 'post', {message: 'How are people feeling about our presidential candidates on Twitter?'});
-// } 
 	
 	</script>
+	<div id = "charts">
 	      	<div class = "vbox">
 	      		<h4 class = "chartTitles">Spline? Tweets?</h4>
 	      		<div id = "spline-chart"></div>
@@ -483,6 +430,7 @@
             <h4 class="chartTitles">Clinton Sentiment by Proportion</h4>
             <div id="eon-hillary-pie-chart"></div>
         </div>
+    </div>
 
 	<section class="tweet">
 			<blockquote class="h-entry">
@@ -503,6 +451,78 @@
 			</blockquote>
 			<div class="emotion"></div>
 		</section>
+		<section id="main" role="main">
+    <div class="chat">
+      <i class="avatar" class=""></i>
+      <input type="text" placeholder="Sentiment analysis thoughts?"> 
+      <button id = "sendButton">Send</button>
+
+    </div>
+    
+
+    <p class="presence"></p>
+    <div class="output"></div>
+  </section>
+<script>
+var output = document.querySelector('.output'),
+input = document.querySelector('input'),
+button = document.querySelector('button'),
+avatar = document.querySelector('.avatar'),
+presence = document.querySelector('.presence');
+  
+var chan = 'hackNY2k16';
+
+//random icon 
+avatar.className = 'face-' + ((Math.random() * 9 + 1) >>> 0);
+
+  var pbChat = PUBNUB.init({ // Hey, use your own keys!
+    subscribe_key: 'sub-c-2e615be4-439b-11e6-971e-02ee2ddab7fe',
+    publish_key: 'pub-c-568f9a32-f440-4d58-9cee-e23cd1d12e7a'
+  });
+
+  pbChat.subscribe({
+    channel: chan,
+    callback: function(m) {
+      output.innerHTML = '<p><i class="' + m.avatar + '"></i><span>' + m.text.replace(/[<>]/ig, '') + '</span></p>' + output.innerHTML;
+    },
+    // Add-ons: Presence and History
+    presence: function(m) {
+      presence.textContent = 'Occupancy: ' + m.occupancy;
+    },
+    connect: fetchOldMessages
+  });
+
+  input.addEventListener('keyup', function(e) {
+    (e.keyCode || e.charCode) === 13 && send();
+  }, false);
+ 
+  button.addEventListener('click', send, false);
+
+  function send() {
+    pbChat.publish({
+      channel: chan,
+      message: {
+        avatar: avatar.className,
+        text: input.value
+      },
+      callback: function(){input.value = '';}
+    });
+  }
+
+  // Add-on: PubNub Playback to fetch past messages
+  function fetchOldMessages() {
+    pbChat.history({
+      channel: chan,
+      count: 50,
+      callback: function(messages) {
+        messages[0].forEach(function(m) {
+          output.innerHTML = '<p><i class="' + m.avatar + '"></i><span>' + m.text.replace(/[<>]/ig, '') + '</span></p>' + output.innerHTML;
+        });
+      }
+    });
+  }
+</script>
+
 	</body>
 	<footer>
 		<!-- <p id = "leftP">PubNub <a href="https://twitter.com/hashtag/projecteon" target="_blank">#projecteon</a> demo by <a href="https://twitter.com/lizziepika" target="_blank">@lizziepika</a></p> -->

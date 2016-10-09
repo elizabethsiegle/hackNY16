@@ -8,6 +8,10 @@ body{
 	width:50%;
 }
 
+.chartTitles {
+	text-align: center;
+}
+
 #spline-chart {
 	background: rgb(71, 71, 71);
 }
@@ -20,4 +24,194 @@ body{
 
 #eon-hillary-pie-chart {
 	background: rgb(50, 69, 76);
+}
+
+#twitterButton {
+	position: absolute;
+	right:5%;
+}
+#charts {
+	margin-top: 13%;
+}
+
+#sendButton:hover {
+	background-color:green;
+	color:white;
+}
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Roboto Light", "Segoe UI Web Light", "Segoe UI Light", "Segoe UI Web Regular", "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #f9f9f9;
+  color: #333;
+}
+
+header {
+  background: #fff;
+  border-top: 4px solid #ce1126;
+  border-bottom-color: #eee;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  text-rendering: optimizeLegibility;
+}
+
+h1 {
+  font-size: 2.4em;
+  line-height: 1.6em;
+  text-align: center;
+  font-weight: normal;
+}
+
+h2 {
+  font-size: 1.2em;
+  line-height: 1.4em;
+  text-align: center;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+input[type=text],
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 1px solid #ddd;
+  color: #333;
+  font-size: 1em;
+  padding: .7em 1em;
+  margin-bottom: 1em;
+  position: relative;
+  top: 15px;
+}
+
+input[type=text] {
+  margin-left: 85px;
+  width: calc(100% - 225px);
+}
+
+button {
+  background: #e6e6e6;
+  text-shadow: 0 1px 0 #f3f3f3;
+  margin: 1em 0 4em 0;
+  width: 100px;
+}
+
+#main {
+  margin: 2em 1em 1em;
+}
+
+#main > h2 {
+  font-weight: normal;
+  font-size: 1.2em;
+  margin-bottom: 1.5em;
+}
+
+#main > p {
+  color: #ce1126;
+}
+
+.chat {
+	margin-top: 60%;
+	height: 85px;
+	width:65%;
+	position: relative;
+}
+
+.chat i {
+  font-size: 75px;
+  position: absolute;
+}
+
+.output p {
+	margin-right: 5%;
+	font-size: 1.2em;
+	margin-left: 0.6em;
+	position: relative;
+	margin-top:5%;
+}
+
+.output i {
+  font-size: 40px;
+  position: absolute;
+  top: -5px;
+}
+
+.output i + span {
+  position: relative;
+  margin-left: 8%;
+}
+/* Font Icons */
+
+[class^="face"],
+[class*=" face"] {
+  font-family: 'Material Icons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.face-1:before {
+	zoom:5%;
+	content:url(https://www.boston.com/wp-content/uploads/2016/05/deal_with_it_512$large.png);
+}
+
+.face-2:before {
+  zoom:5%;
+  content:url(https://www.boston.com/wp-content/uploads/2016/05/yuge_anger$large.png);
+}
+
+.face-3:before {
+	zoom:5%;
+	content:url(https://cnet4.cbsistatic.com/img/-fD7VyAOZOy7hbKZDm5Vx0xgZwo=/570x0/2015/08/06/05b7b51a-312c-41ac-ad49-44823aa344ac/trump.jpg);
+}
+
+.face-4:before {
+  zoom:5%;
+  content:url(http://devstickers.com/assets/img/pro/jetx.png);
+}
+
+.face-5:before {
+  zoom:5%;
+  content:url(http://www.stickermotions.com/wp-content/uploads/2014/12/5609229801887168427.png);
+}
+.face-6:before {
+	zoom:5%;
+	content:url(https://www.boston.com/wp-content/uploads/2016/05/deal_with_it_512$large.png);
+}
+
+.face-7:before {
+  zoom:5%;
+  content:url(https://www.boston.com/wp-content/uploads/2016/05/yuge_anger$large.png);
+}
+.face-8:before {
+	zoom:5%;
+	content:url(https://www.boston.com/wp-content/uploads/2016/05/deal_with_it_512$large.png);
+}
+
+.color-1 {
+  color: #393b79;
+}
+
+.color-2 {
+  color: #6b6ecf;
 }
