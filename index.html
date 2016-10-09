@@ -10,13 +10,31 @@
 		<!-- <link rel="stylesheet" href="css/style.css"> -->
 		<script type="text/javascript" src="http://pubnub.github.io/eon/v/eon/0.0.10/eon.js"></script>
 		<link type="text/css" rel="stylesheet" href="http://pubnub.github.io/eon/v/eon/0.0.10/eon.css"/>
+		<link type="text/css" rel="stylesheet" href="css/style.css"/>
 		<script   src="http://code.jquery.com/jquery-3.1.1.js"   integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="   crossorigin="anonymous"></script>
+    <!--Bootstrap stuff-->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    
+    <!--Google Fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+
 
 	</head>
-	<body background = 'img/background.jpg'>
-	<header>
-		<h2>Realtime Election PubNub Twitter Stream Data Vis. with EON.js</h2>
-	</header>
+	<body>
+	<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"><strong>Realtime Election</strong></a>
+    </div>
+  </nav>
 		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<div class= "playerData">
 			<div id = "hoverImg"></div>
@@ -302,8 +320,8 @@
 // 		callback(userInfo);
 // 	}
 
-// 	function insertLinks(text) {            
-//         return text.replace(/((https?|s?ftp|ssh)\:\/\/[^"\s\<\>]*[^.,;'">\:\s\<\>\)\]\!])/g, function(url){return '<a href="'+url+'" >'+url+'</a>';});                      
+// 	function insertLinks(text) {
+//         return text.replace(/((https?|s?ftp|ssh)\:\/\/[^"\s\<\>]*[^.,;'">\:\s\<\>\)\]\!])/g, function(url){return '<a href="'+url+'" >'+url+'</a>';});
 //     }
 
 //     function displayTweet(data, sentiment) {
@@ -324,23 +342,39 @@
 //     } //end func
 	
 	</script>
-	<div class = "hbox">
-		<div class = "vbox panel">
-			<h4 class = "chartTitles">Sentiment over time</h4>
-			<div id = "both-bar-chart"></div>
-		</div>
+	<div class="container">
+	  <div class="row">
+	    <div class="col-md-6 col-md-offset-3">
+	      <div class = "hbox">
+		      <div class = "vbox panel text-center">
+			      <h4 class = "chartTitles">Sentiment over time</h4>
+			        <div id = "both-bar-chart"></div>
+		      </div>
+	      </div>
+	    </div>
+	  </div>
 	</div>
+
+
+
+	<div class="container">
+	  <div class="row">
+	    <div class="col-md-6 col-md-offset-3">
 	<div class="hbox">
-        <div class="vbox panel">
+	      
+        <div class="vbox panel text-center">
             <h4 class="chartTitles">Trump Sentiment by Proportion</h4>
             <div id="eon-trump-pie-chart"></div>
         </div>
-        <div class="vbox panel">
+        <div class="vbox panel text-center">
             <h4 class="chartTitles">Clinton Sentiment by Proportion</h4>
             <div id="eon-hillary-pie-chart">
             </div>
         </div>
     </div>
+	    </div>
+	  </div>
+	</div>
 
 	<!-- <section class="tweet">
 			<blockquote class="h-entry">
