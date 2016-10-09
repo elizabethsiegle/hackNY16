@@ -1,3 +1,23 @@
 body{
   font-family: 'Lato', sans-serif !important;
 }
+
+.vbox {
+	height: 50%;
+	float:left;
+	width:50%;
+}
+
+#spline-chart {
+	background: rgb(71, 71, 71);
+}
+#both-bar-chart {
+	background: rgb(131, 139, 142);
+}
+#eon-trump-pie-chart {
+	background: rgb(186, 208, 216);
+}
+
+#eon-hillary-pie-chart {
+	background: rgb(50, 69, 76);
+}

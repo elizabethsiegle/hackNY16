@@ -2,9 +2,8 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
-		<title>PubNub Twitter Stream x Election</title>
-		<meta name="description" content="Twitter x Warriors Visualization using PubNub">
+		<title>Election x Twitter Stream w/ PubNub </title>
+		<meta name="description" content="Twitter x Election Visualization using PubNub">
 		<meta name="author" content="Lizzie Siegle">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<!-- <link rel="stylesheet" href="css/style.css"> -->
@@ -24,17 +23,42 @@
     
     <!--Google Fonts-->
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-
+ 	<script type="text/javascript" async src="https://platform.twitter.com/widgets.js"></script>
 
 	</head>
 	<body>
+		<div id="fb-root"></div>
+<script>
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1741191809503706";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
 	<nav class="navbar navbar-inverse">
     <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <a class="navbar-brand" href="#"><strong>Realtime Election</strong></a>
+      <a class="navbar-brand" href="#"><strong>Realtime Data Vis. of Election Tweets Sentiment Analysis</strong></a>
     </div>
+    <div id="fb-root"></div>
+	<!-- USE 'Asynchronous Loading' version, for IE8 to work
+	http://developers.facebook.com/docs/reference/javascript/FB.init/ -->
+	
+<!-- <button id = "autoPostStatus" onclick="myFacebookLogin();">Post prev-composed status</button> -->
+<!--FB init buttons -->
+<!-- <div
+  class="fb-like"
+  data-share="true"
+  data-width="450"
+  data-show-faces="true">
+</div> -->
   </nav>
+  <div id = "twitterButton">
+  <a href="https://twitter.com/intent/tweet?text=checking+out+this+realtime+election+tweet+sentiment+analysis+visualization+at+@hackny&hashtags=hackny" class="twitter-share-button" data-show-count="false">Tweet</a><!-- <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> -->
+</div>
 		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PZWSZ2" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		<div class= "playerData">
 			<div id = "hoverImg"></div>
@@ -59,12 +83,16 @@
     var antiClintonColor = "#66a3ff";
     var proTrumpColor = "#800000";
     var antiTrumpColor = "#ff9999";
+    var neutClintonColor = "#D3D3D3";
+    var neutTrumpColor = "#000000";
 	
 	var numHillaryWords = 0;
 	var hillaryNeg = 0;
 	var hillaryPos = 0;
+	var hillaryNeutral = 0;
 	var trumpNeg = 0;
 	var trumpPos = 0;
+	var trumpNeutral = 0;
 	var numTrumpWords = 0;
 	var channel = 'pubnub-twitter';
 	var pubnubTweet = PUBNUB.init({
@@ -91,7 +119,6 @@
 		if (!data) DOCUMENT.getElementById('chart') = "Data is loading";
 		if (hillaryWords.some(function(v) {
 			return data.text.toLowerCase().indexOf(v) !== -1;
-			displayData(data, hillary);
 		})) {
 			$.getJSON('https://api.havenondemand.com/1/api/sync/analyzesentiment/v1?text='+ data['text'] +'&language=eng&apikey=dbb4607a-946f-4d6c-b63e-84e3844111f5',function(data2){
 	    		console.log(data['text']);
@@ -100,10 +127,18 @@
 					hillaryNeg +=1;
 					totalNumTweets +=1;
 					numHillaryWords +=1;
+					//displayTweet(data, negative);
 					publish2();
 				} //if
 				else if(data2['aggregate']['sentiment'] == 'positive') {
 					hillaryPos += 1;
+					numHillaryWords +=1;
+					totalNumTweets += 1;
+					//displayTweet(data, positive);
+					publish2();
+				}  //else if
+				else if(data2['aggregate']['sentiment'] == 'neutral') {
+					hillaryNeutral += 1;
 					numHillaryWords +=1;
 					totalNumTweets += 1;
 					publish2();
@@ -120,6 +155,7 @@
 						//displayData(data, trump);
 	      				numTrumpWords += 1;
 	    				totalNumTweets += 1;
+	    				displayTweet(data, negative);
 	    				publish2();
 					}
 					else if(data2['aggregate']['sentiment'] == 'positive') {
@@ -127,32 +163,81 @@
 						//displayData(data, trump);
 	      				numTrumpWords += 1;
 	    				totalNumTweets += 1;
+	    				displayTweet(data, positive);
 	    				publish2();
 	    			}
+	    			else if(data2['aggregate']['sentiment'] == 'neutral') {
+					trumpNeutral += 1;
+					numTrumpWords +=1;
+					totalNumTweets += 1;
+					publish2();
+				}  //else if
 	    		});
 	    	}
 	    	//console.log(data);
 	    }
 	} //processData()
-	var pnEon = PUBNUB.init({
+	var eon2 = PUBNUB.init({
 	  subscribe_key: 'sub-c-5f50a89e-8d8e-11e6-bb6b-0619f8945a4f', //different subscribe from Twitter
 	  publish_key: 'pub-c-98bc3516-e920-4918-bffb-f1861be32d48' //separate keyset generated, paired with new subscribe key
 	});
-	// var trumpEon = PUBNUB.init({
-	// 	subscribe_key: 'sub-c-68977430-8d8b-11e6-a68c-0619f8945a4f', //different subscribe from Twitter
-	//   	publish_key: 'pub-c-20c08405-027a-495b-a8da-4afe532ab3b7'
-	// });
 	//publish chart
 	var hillChan = 'hillChan';
 	var trumpChan = "trumpChan";
 	var bothChan = "bothChan";
+	var splineChan = "splineChanUgh"
 	function publish2() {
-		pnEon.publish({
+		eon2.publish({
+			channel: splineChan,
+			message: {
+				eon: {
+					"Clinton total": numHillaryWords/totalNumTweets,
+					"Trump total": numTrumpWords/totalNumTweets
+				}
+			}, //msg
+			callback: function(m) {
+				console.log(m)
+			} //callback
+		}); //publish
+	
+		//embed chart
+		eon.chart({
+			channel: splineChan,
+			pubnub: eon2,
+			// history: true,
+			generate: {
+				bindto: '#spline-chart',
+				data: {
+					labels: true,
+	      			type: 'spline', //bar
+	      			colors: {
+	        			'Clinton total': proClintonColor,
+	        			'Trump total': proTrumpColor
+	      			} //colors
+	    		}, //data
+	    		legend: {
+	      			show: true,
+	    		}, //legend
+	    		tooltip: {
+	      			show: false //gets rid of hover legend
+	    		},
+	    		axis: {
+	      			x: {
+	        			label: 'Tweet topic'
+	      			}, //x
+	      			y: {
+	        			label: 'Number of Tweets'
+	      			} //y
+	    		} //axis
+	  		} //generate
+		}); //eon.chart
+		eon2.publish({
 			channel: hillChan,
 			message: {
 				eon: {
-					"Hillary Positive": hillaryPos / (hillaryPos + hillaryNeg),
-					"Hillary negative" : hillaryNeg / (hillaryPos + hillaryNeg)
+					"Clinton Positive": hillaryPos / (hillaryPos + hillaryNeg + hillaryNeutral),
+					"Clinton Negative" : hillaryNeg / (hillaryPos + hillaryNeg + hillaryNeutral),
+					"Clinton Neutral": hillaryNeutral / (hillaryPos + hillaryNeg + hillaryNeutral)
 				}
 			}, //msg
 			callback: function(m) {
@@ -163,7 +248,7 @@
 		//embed chart
 		eon.chart({
 			channel: hillChan,
-			pubnub: pnEon,
+			pubnub: eon2,
 			history: true,
 			generate: {
 				bindto: '#eon-hillary-pie-chart',
@@ -171,8 +256,9 @@
 					labels: true,
 	      			type: 'donut', //bar
 	      			colors: {
-	        			'Hillary Positive': proClintonColor,
-	        			'Negative': antiClintonColor,
+	        			'Clinton Positive': proClintonColor,
+	        			'Clinton Negative': antiClintonColor,
+	        			'Clinton Neutral' : neutClintonColor
 	      			} //colors
 	    		}, //data
 	    		legend: {
@@ -193,12 +279,13 @@
 		}); //eon.chart
 		
 		//embed
-		pnEon.publish({
+		eon2.publish({
 			channel: trumpChan,
 			message: {
 				eon: {
-					"Trump Positive": trumpPos / (trumpPos + trumpNeg),
-					"Trump negative" : trumpNeg / (trumpPos + trumpNeg)
+					"Trump Positive": trumpPos / (trumpPos + trumpNeg + trumpNeutral),
+					"Trump Negative" : trumpNeg / (trumpPos + trumpNeg + trumpNeutral),
+					"Trump Neutral": trumpNeutral / (trumpPos + trumpNeg + trumpNeutral)
 				}
 			}, //msg
 			callback: function(m) {
@@ -208,45 +295,44 @@
 	
 		//embed chart
 		eon.chart({
-			channel: bothChan,
-			pubnub: pnEon,
+			channel: trumpChan,
+			pubnub: eon2,
 			history: true,
 			generate: {
 				bindto: '#eon-trump-pie-chart',
 				data: {
-					labels: true,
       				type: 'donut', //bar
-      				colors: {
-        				'Positive': proTrumpColor,
-        				'Negative': antiTrumpColor,
-      				} //colors
-    			}, //data
-    			legend: {
-      				show: true,
-    			}, //legend
-    		
-    			tooltip: {
-      				show: false //gets rid of hover legend
-    			},
-    			axis: {
-      				x: {
-        				label: 'Tweet topic'
-      				}, //x
-      				y: {
-        				label: 'Number of Tweets'
-      				} //y
+	      			colors: {
+	        			'Trump Positive': proTrumpColor,
+	        			'Trump Negative': antiTrumpColor,
+	        			'Trump Neutral' : neutTrumpColor
+	      			} //colors
+	    		}, //data
+	    		legend: {
+	      			show: true,
+	    		}, //legend
+	    		tooltip: {
+	      			show: false //gets rid of hover legend
+	    		},
+	    		axis: {
+	      			x: {
+	        			label: 'Tweet topic'
+	      			}, //x
+	      			y: {
+	        			label: 'Number of Tweets'
+	      			} //y
 	    		} //axis
 	  		} //generate
 		}); //eon.chart
 		//embed
-		pnEon.publish({
+		eon2.publish({
 			channel: bothChan,
 			message: {
 				eon: {
-					"Clinton Pos": hillaryPos / (hillaryPos + hillaryNeg),
-					"Clinton neg": hillaryNeg / (hillaryPos + hillaryNeg),
-					"Trump negative" : trumpNeg / (trumpPos + trumpNeg),
-					"Trump Pos": trumpPos / (trumpPos + trumpNeg)
+					"Clinton Positive": hillaryPos / (hillaryPos + hillaryNeg + hillaryNeutral),
+					"Clinton Negative": hillaryNeg / (hillaryPos + hillaryNeg + hillaryNeutral),
+					"Trump Positive": trumpPos / (trumpPos + trumpNeg + trumpNeutral),
+					"Trump Negative" : trumpNeg / (trumpPos + trumpNeg + trumpNeutral),
 				}
 			}, //msg
 			callback: function(m) {
@@ -257,7 +343,7 @@
 		//embed chart
 		eon.chart({
 			channel: bothChan,
-			pubnub: pnEon,
+			pubnub: eon2,
 			history: true,
 			generate: {
 				bindto: '#both-bar-chart',
@@ -265,10 +351,12 @@
 					labels: true,
       				type: 'bar', //bar
       				colors: {
-        				'Clinton Pos': proClintonColor,
-        				'Clinton neg': antiClintonColor,
-        				'Trump Pos': proTrumpColor,
-        				'Trump negative': antiTrumpColor
+        				'Clinton Positive': proClintonColor,
+        				'Clinton Negative': antiClintonColor,
+        				'Clinton Neutral': neutClintonColor,
+        				'Trump Positive': proTrumpColor,
+        				'Trump Negative': antiTrumpColor,
+        				'Trump Neutral': neutTrumpColor
       				} //colors
     			}, //data
     			legend: {
@@ -338,45 +426,65 @@
 // 			document.querySelector('.favorite').href = 'https://twitter.com/intent/favorite?tweet_id=' + user.id_str;
 			
 // 			document.querySelector('.tweet').style.opacity = 0.9;
-//     	});
+
+// 			var position = projection([user.lon, user.lat]);
+// 			if(position === null) return;
+
+// 			faceIcon.enter()
+// 				.append('svg:image')
+// 				.attr('xlink:href', 'images/'+ emotion.icon)
+// 				.attr('width', '26').attr('height', '26')
+//            		.attr('transform', function(d) {return 'translate(' + position + ')';});
+// 		});
 //     } //end func
+//fb 
+// window.fbAsyncInit = function() {
+//     FB.init({
+//         appId      : 'your-app-id',
+//         xfbml      : true,
+//         version    : 'v2.7'
+//     });
+// };
+
+// (function(d, s, id){
+//     var js, fjs = d.getElementsByTagName(s)[0];
+//     if (d.getElementById(id)) {
+//         return;
+//     }
+//     js = d.createElement(s); 
+
+//     js.id = id;
+//     js.src = "//connect.facebook.net/en_US/sdk.js";
+//     fjs.parentNode.insertBefore(js, fjs);
+// }(document, 'script', 'facebook-jssdk'));
+
+// // Only works after `FB.init` is called
+// function myFacebookLogin() {
+//     FB.login(function(){
+//     // Note: The call will only work if you accept the permission request
+//         FB.api('/me/feed', 'post', {message: 'How are people feeling about our presidential candidates on Twitter?'});
+// } 
 	
 	</script>
-	<div class="container">
-	  <div class="row">
-	    <div class="col-md-6 col-md-offset-3">
-	      <div class = "hbox">
-		      <div class = "vbox panel text-center">
+	      	<div class = "vbox">
+	      		<h4 class = "chartTitles">Spline? Tweets?</h4>
+	      		<div id = "spline-chart"></div>
+	      	</div>
+		      <div class = "vbox">
 			      <h4 class = "chartTitles">Sentiment over time</h4>
 			        <div id = "both-bar-chart"></div>
 		      </div>
-	      </div>
-	    </div>
-	  </div>
-	</div>
-
-
-
-	<div class="container">
-	  <div class="row">
-	    <div class="col-md-6 col-md-offset-3">
-	<div class="hbox">
 	      
-        <div class="vbox panel text-center">
+        <div class="vbox">
             <h4 class="chartTitles">Trump Sentiment by Proportion</h4>
             <div id="eon-trump-pie-chart"></div>
         </div>
-        <div class="vbox panel text-center">
+        <div class="vbox">
             <h4 class="chartTitles">Clinton Sentiment by Proportion</h4>
-            <div id="eon-hillary-pie-chart">
-            </div>
+            <div id="eon-hillary-pie-chart"></div>
         </div>
-    </div>
-	    </div>
-	  </div>
-	</div>
 
-	<!-- <section class="tweet">
+	<section class="tweet">
 			<blockquote class="h-entry">
 				<a class="button" role="button" title="Follow on Twitter" href="" target="_blank"></a>
 				<div class="header">
@@ -394,9 +502,9 @@
 				</div>
 			</blockquote>
 			<div class="emotion"></div>
-		</section> -->
+		</section>
 	</body>
 	<footer>
-		<p id = "leftP">PubNub <a href="https://twitter.com/hashtag/projecteon" target="_blank">#projecteon</a> demo by <a href="https://twitter.com/lizziepika" target="_blank">@lizziepika</a></p>
+		<!-- <p id = "leftP">PubNub <a href="https://twitter.com/hashtag/projecteon" target="_blank">#projecteon</a> demo by <a href="https://twitter.com/lizziepika" target="_blank">@lizziepika</a></p> -->
 	</footer>
 </html>
